@@ -67,8 +67,7 @@ class Game:
             try:
                 choice = int(input()) - 1
                 if 0 <= choice < len(self.available_pokemons):
-                    # If we already have a pokemon in use then
-                    # we will return it back to the list
+
                     if self.current_pokemon:
                         self.mark_pokemon_as_unused(self.current_pokemon)
 
@@ -83,9 +82,6 @@ class Game:
 
     def initiate_battle(self):
         """Starts a battle sequence with an opponent."""
-        # if not any(p for p in self.available_pokemons if p != self.current_pokemon):
-        #     Logger.log_info("No available opponents left. You are the ultimate champion!")
-        #     return
 
         while True:
             Logger.log_info("Do you want to choose your opponent? (Yes/No)")
@@ -96,9 +92,6 @@ class Game:
             elif response == 'no':
                 opponents = [p for p in self.available_pokemons if
                              p != self.current_pokemon and p not in self.defeated_pokemons]
-                # if not opponents:
-                #     Logger.log_info("No opponents left to randomly select. You are the ultimate champion!")
-                #     return
                 opponent = random.choice(opponents)
                 Logger.log_info(f"Your randomly selected opponent is {Formatter.format_name(opponent.name)}.")
                 break
