@@ -24,7 +24,7 @@ class WaterPokemon(Pokemon):
         if random.random() < 0.2:  # 20% chance to dampen the incoming attack
             reduced_amount = amount * 0.1  # Reduce damage by 10%
             Logger.log_info(
-                f"{Formatter.format_name(self.name)}'s splashing reduces the incoming damage by {reduced_amount}.")
+                f"{Formatter.format_name(self.name)}'s splashing reduces the incoming damage by {Formatter.format_damage(reduced_amount)}.")
             amount -= reduced_amount
 
         # Calls the superclass method to apply the damage

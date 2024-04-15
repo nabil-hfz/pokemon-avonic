@@ -22,7 +22,7 @@ class Battle:
         attacker = self.pokemon1 if self.turn == 1 else self.pokemon2
         defender = self.pokemon2 if self.turn == 1 else self.pokemon1
 
-        Logger.log_info(f"{Formatter.format_name(attacker.name)}'s turn to attack {defender.name}.")
+        Logger.log_info(f"{Formatter.format_name(attacker.name)}'s turn to attack {Formatter.format_name(defender.name)}.")
         attacker.attack(defender)
         defender.display_status()
 

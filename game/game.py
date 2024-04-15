@@ -5,7 +5,7 @@ from pokemons.types.earth_pokemon import EarthPokemon
 from pokemons.types.electric_pokemon import ElectricPokemon
 from pokemons.types.fire_pokemon import FirePokemon
 from pokemons.types.water_pokemon import WaterPokemon
-from utils import Logger
+from utils import Logger, Formatter
 
 
 class Game:
@@ -36,16 +36,15 @@ class Game:
                 self.choose_pokemon()
             elif choice == '2':
                 if self.current_pokemon:
+
                     self.initiate_battle()
+
                     self.display_pokemon_stats()
-                    if self.current_pokemon.is_knocked_out():
-                        Logger.log_info(f"{self.current_pokemon.name} has been knocked out.")
-                        break
-                    if not self.available_pokemons:
-                        Logger.log_info("Congratulations, you are the ultimate champion!")
+
+                    if self.game_is_over():
                         break
                 else:
-                    Logger.log_info("Please choose a Pokemon first.")
+                    Logger.log_info("Please choose a Pokemon first.\n")
             elif choice == '3':
                 Logger.log_info("Exiting game.")
                 break
@@ -55,17 +54,27 @@ class Game:
 
     def choose_pokemon(self):
         """Lets the player choose their Pokemon from the available list."""
+        if self.current_pokemon:
+            Logger.log_info("You've already chosen a pokemon. Now you are switching it.")
+
         Logger.log_info("Available Pokemon:")
         for index, pokemon in enumerate(self.available_pokemons, start=1):
-            Logger.log_info(f"{index}. {pokemon.name} (Level {pokemon.level}, Type: {pokemon.type})")
+            Logger.log_info(
+                f"{index}. {Formatter.format_name(pokemon.name)} (Level {pokemon.level}, Type: {pokemon.type})")
 
         while True:
             Logger.log_info("Pick your Pokemon by number: ")
             try:
                 choice = int(input()) - 1
                 if 0 <= choice < len(self.available_pokemons):
+                    # If we already have a pokemon in use then
+                    # we will return it back to the list
+                    if self.current_pokemon:
+                        self.mark_pokemon_as_unused(self.current_pokemon)
+
                     self.current_pokemon = self.available_pokemons[choice]
-                    Logger.log_info(f"You have chosen {self.current_pokemon.name}.")
+                    self.mark_pokemon_as_used(self.current_pokemon)
+                    Logger.log_info(f"You have chosen {Formatter.format_name(self.current_pokemon.name)}.")
                     break
                 else:
                     Logger.log_info("Invalid choice, please pick again.")
@@ -74,9 +83,9 @@ class Game:
 
     def initiate_battle(self):
         """Starts a battle sequence with an opponent."""
-        if not any(p for p in self.available_pokemons if p != self.current_pokemon):
-            Logger.log_info("No available opponents left. You are the ultimate champion!")
-            return
+        # if not any(p for p in self.available_pokemons if p != self.current_pokemon):
+        #     Logger.log_info("No available opponents left. You are the ultimate champion!")
+        #     return
 
         while True:
             Logger.log_info("Do you want to choose your opponent? (Yes/No)")
@@ -87,31 +96,30 @@ class Game:
             elif response == 'no':
                 opponents = [p for p in self.available_pokemons if
                              p != self.current_pokemon and p not in self.defeated_pokemons]
-                if not opponents:
-                    Logger.log_info("No opponents left to randomly select.")
-                    return
+                # if not opponents:
+                #     Logger.log_info("No opponents left to randomly select. You are the ultimate champion!")
+                #     return
                 opponent = random.choice(opponents)
-                Logger.log_info(f"Your randomly selected opponent is {opponent.name}.")
+                Logger.log_info(f"Your randomly selected opponent is {Formatter.format_name(opponent.name)}.")
                 break
             else:
                 Logger.log_info("Invalid response, please answer 'Yes' or 'No'.")
 
-        Logger.log_info(f"Starting battle with {opponent.name}.")
+        Logger.log_info(f"Starting battle with {Formatter.format_name(opponent.name)}.")
         battle = Battle(self.current_pokemon, opponent)
         battle.start_fight()
         self.battles_count += 1
 
         if opponent.is_knocked_out():
-            self.defeated_pokemons.append(opponent)
-            self.available_pokemons.remove(opponent)
+            self.mark_pokemon_as_defeated(opponent)
 
     def display_pokemon_stats(self):
         """Displays statistics for the current Pokemon."""
         Logger.log_info(f"Battle Count: {self.battles_count}, "
-                        f"Current Pokemon: {self.current_pokemon.name}, "
+                        f"Current Pokemon: {Formatter.format_name(self.current_pokemon.name)}, "
                         f"Type: {self.current_pokemon.type}, "
                         f"Level: {self.current_pokemon.level}, "
-                        f"Health: {self.current_pokemon.health}/{self.current_pokemon.max_health}, "
+                        f"Health: {Formatter.format_health(self.current_pokemon.health)}/{Formatter.format_health(self.current_pokemon.max_health)}, "
                         f"Evasion: {self.current_pokemon.evasion}%")
 
     def choose_opponent(self):
@@ -123,7 +131,8 @@ class Game:
             Logger.log_info("No available opponents to choose from.")
             return None
         for index, pokemon in enumerate(valid_opponents, start=1):
-            Logger.log_info(f"{index}. {pokemon.name} (Level {pokemon.level}, Type: {pokemon.type})")
+            Logger.log_info(
+                f"{index}. {Formatter.format_name(pokemon.name)} (Level {pokemon.level}, Type: {pokemon.type})")
 
         while True:
             Logger.log_info("Pick your opponent by number: ")
@@ -135,3 +144,29 @@ class Game:
                     Logger.log_info("Invalid choice, please pick again.")
             except ValueError:
                 Logger.log_error("Please enter a valid number.")
+
+    def mark_pokemon_as_defeated(self, pokemon):
+        self.defeated_pokemons.append(pokemon)
+        self.available_pokemons.remove(pokemon)
+
+    def mark_pokemon_as_used(self, pokemon):
+        self.available_pokemons.remove(pokemon)
+
+    def mark_pokemon_as_unused(self, pokemon):
+        self.available_pokemons.append(pokemon)
+
+    def has_lost(self):
+        if self.current_pokemon.is_knocked_out():
+            Logger.log_info(
+                f"{Formatter.format_name(self.current_pokemon.name)}(YOU) has been knocked out.")
+            return True
+        return False
+
+    def finishes_all_opponents(self):
+        if not self.available_pokemons:
+            Logger.log_info("Congratulations, you are the ultimate champion!")
+            return True
+        return False
+
+    def game_is_over(self):
+        return self.has_lost() or self.finishes_all_opponents()
