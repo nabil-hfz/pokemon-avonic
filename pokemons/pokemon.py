@@ -1,5 +1,6 @@
 import random
 
+from utils import Logger
 from utils.formatter import Formatter
 
 
@@ -42,17 +43,17 @@ class Pokemon:
         if random.random() > other.evasion:
             damage = self.attack_power - other.defense
             damage = max(damage, 0)  # Prevent damage from being negative
-            print(
+            Logger.log_info(
                 f"{Formatter.format_name(self.name)} attacks {Formatter.format_name(other.name)} causing {Formatter.format_damage(damage)} damage.")
             other.take_damage(damage)
         else:
-            print(
+            Logger.log_info(
                 f"{Formatter.format_name(self.name)}'s attack missed due to {Formatter.format_name(other.name)}'s evasion!")
 
     def take_damage(self, amount):
         """Reduces health by the specified amount after an attack. Health cannot fall below zero."""
         self.health = max(self.health - amount, 0)
-        print(
+        Logger.log_info(
             f"{Formatter.format_name(self.name)} now has {Formatter.format_damage(self.health)} health.")
 
     def is_knocked_out(self):
@@ -61,5 +62,5 @@ class Pokemon:
 
     def display_status(self):
         """Shows current health, level, and evasion."""
-        print(
+        Logger.log_info(
             f"{Formatter.format_name(self.name)} (Type: {self.type}): Level {self.level}, Health {Formatter.format_health(self.health)}/{self.max_health}, Evasion: {self.evasion:.0%}")

@@ -1,7 +1,4 @@
+from game.game import Game
 
-def main():
-    print("hey there")
-
-
-main()
-
+game = Game()
+game.main_menu()

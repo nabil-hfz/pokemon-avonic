@@ -13,8 +13,8 @@ class Formatter:
 
     @staticmethod
     def format_health(health):
-        """Format health value to no decimal places."""
-        return f"{health:.0f}"
+        """Format health to one decimal place to avoid floating-point precision issues."""
+        return f"{health:.1f}"
 
     @staticmethod
     def format_percentage(value):
