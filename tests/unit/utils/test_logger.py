@@ -26,7 +26,3 @@ class TestLogger(unittest.TestCase):
         message = "Error message"
         Logger.log_error(message)
         mock_error.assert_called_once_with(message)
-
-
-if __name__ == '__main__':
-    unittest.main()
