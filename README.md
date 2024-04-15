@@ -1,4 +1,7 @@
 # Pokemon Battle Simulator
+A small console-based Pokemon game.
+
+
 
 ## Project Overview
 This Python-based project simulates battles between various types of Pokemon. Players can choose a Pokemon, challenge another, and engage in turn-based combat until one combatant is knocked out. The simulator keeps track of battles and monitors the health and status of participating Pokemon.
